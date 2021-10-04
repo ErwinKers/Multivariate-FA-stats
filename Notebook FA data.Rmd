@@ -1,12 +1,20 @@
 ---
-title: "R Multivariate FA data"
+title: "R Multivariate statistics: FA data"
+author: "Erwin Kers"
+date: 04-10-2021
 output: html_notebook
 ---
+## Goal
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+I'm trying to reproduce the graph published in: 
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+*Grosbois, G., Mariash, H., Schneider, T., & Rautio, M. (2017). Under-ice availability of phytoplankton lipids is key to freshwater zooplankton winter survival. Scientific reports, 7(1), 1-11.*
 
+The pdf is included in this github repository. However I have not yet succeeded.
+
+### First try on the raw data
+
+I have grouped the data in excel (SAFA, MUFA, PUFA, n-3,n-6 and the biomarkers for phytoplankton, bacteria, terrestrial) as indicated in their paper.
 ```{r}
 group <- read_excel("C:/Users/Erwin kers/OneDrive/UIT/BIO-3524/practice data/Github/Multivariate-FA-stats/grouping.xlsx")
 View(group)
@@ -26,8 +34,33 @@ fviz_pca_biplot(groupPR, geom.ind = "point", pointshape = 21,
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+### As you can see I do not get the same results
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+Here I used the data but than as a percentage of total FA.
+Note i have changed the colors to match their colors for easier comparison
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+```{r}
+######## Percentage----
+
+
+percent <- read_excel("C:/Users/Erwin Kers/OneDrive/UIT/BIO-3524/practice data/Github/Multivariate-FA-stats/percentage FA.xlsx")
+
+## not the same result, did they remove outliers?
+
+percentPR <- prcomp(percent[c(44:51)], center = T, scale = T)
+fviz_pca_biplot(percentPR, geom.ind = "point",
+                
+                pointshape = 22, 
+                pointsize = 2, 
+                fill.ind = percent$Species, 
+                col.ind = "black", 
+                palette = c("yellow", "green","red", "blue", "white"), 
+                addEllipses = F,
+                label = "var",
+                col.var = "black",
+                repel = F,
+                legend.title = "Species") +
+  ggtitle("2D PCA-plot from FA dataset") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
