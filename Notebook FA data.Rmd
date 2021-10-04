@@ -4,7 +4,7 @@ author: "Erwin Kers"
 date: 04-10-2021
 output: html_notebook
 ---
-## Goal
+### Goal
 
 I'm trying to reproduce the graph published in: 
 
@@ -12,10 +12,17 @@ I'm trying to reproduce the graph published in:
 
 The pdf is included in this github repository. However I have not yet succeeded.
 
+Here is the figure of the PCA of Grosbois et al. that I'm trying to reproduce.
+#![PCA from Grosbois et al.](PCA from paper.png)
+
 ### First try on the raw data
 
 I have grouped the data in excel (SAFA, MUFA, PUFA, n-3,n-6 and the biomarkers for phytoplankton, bacteria, terrestrial) as indicated in their paper.
 ```{r}
+library(readxl)
+library(factoextra)
+library(tidyverse)
+
 group <- read_excel("C:/Users/Erwin kers/OneDrive/UIT/BIO-3524/practice data/Github/Multivariate-FA-stats/grouping.xlsx")
 View(group)
 
@@ -34,7 +41,7 @@ fviz_pca_biplot(groupPR, geom.ind = "point", pointshape = 21,
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-### As you can see I do not get the same results
+### As you can see I did not get the same results
 
 Here I used the data but than as a percentage of total FA.
 Note i have changed the colors to match their colors for easier comparison
