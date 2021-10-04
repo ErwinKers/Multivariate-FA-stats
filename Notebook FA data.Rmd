@@ -1,0 +1,33 @@
+---
+title: "R Multivariate FA data"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+group <- read_excel("C:/Users/Erwin kers/OneDrive/UIT/BIO-3524/practice data/Github/Multivariate-FA-stats/grouping.xlsx")
+View(group)
+
+groupPR <- prcomp(group[c(44:51)], center = T, scale = T)
+fviz_pca_biplot(groupPR, geom.ind = "point", pointshape = 21, 
+             pointsize = 2, 
+             fill.ind = group$Species, 
+             col.ind = "black", 
+             palette = "jco", 
+             addEllipses = TRUE,
+             label = "var",
+             col.var = "black",
+             repel = TRUE,
+             legend.title = "Species") +
+  ggtitle("2D PCA-plot from FA dataset") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
