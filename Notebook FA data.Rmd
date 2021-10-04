@@ -10,7 +10,7 @@ I'm trying to reproduce the graph published in:
 
 *Grosbois, G., Mariash, H., Schneider, T., & Rautio, M. (2017). Under-ice availability of phytoplankton lipids is key to freshwater zooplankton winter survival. Scientific reports, 7(1), 1-11.*
 
-The pdf as well as the suplementary data are included in this github repository.
+The pdf as well as the supplementary data are included in this github repository.
 Here is the figure of the PCA of Grosbois et al. that I'm trying to reproduce.
 
 #![PCA from Grosbois et al.](PCA from paper.png)
@@ -41,6 +41,8 @@ fviz_pca_biplot(groupPR, geom.ind = "point", pointshape = 21,
   theme(plot.title = element_text(hjust = 0.5))
 ```
 As you can see I did not get the same results as they did in the paper, Amanda already mentioned I should use percentage FA.
+
+Maeve: Yes, Amanda is correct. They write in the figure legend that the figure is based on 'FA composition'...this means percentage. FA data is almost always presented as compositional data out of 100. Have you made the dataset compositional before or after grouping?? This needs to be done prior to grouping....so when you have the ~43 FA, you make it compositional and then recalculate the SUMs and FATMs on the compositional dataset, which can then be log-transformed for the PCA. 
 
 ***
 
@@ -75,6 +77,9 @@ fviz_pca_biplot(percentPR, geom.ind = "point",
 
 ### Tried to normalize the data
 They mentioned they normalized their data but I don't know how, maybe they just meant as % of total FA?
+
+Maeve: I would guess that they scaled or log-transformed their data to 'pull in' Sum_PUFA and other high contributors since even in the compositional format these would be much higher numbers compared to Bacterial and Terrestrial FATM. You should consider the fact that ordinations can be 'upside-down', but still identical. I see that you are getting slightly different results (the MUFA arrow), but it's very close. 
+
 
 ```{r}
 # trying to get the same layout (PCA)
@@ -112,6 +117,8 @@ fviz_pca_biplot(Normok, geom.ind = "point", pointshape = 21,
 
 I thought this might look more like their plot, but this is very different.
 
+Maeve: Yes, NMDS and PCA are different approaches to distance-based methods (ordinations). However, you should get similar results if you use 'euclidean' distance here instead of "bray". Bray-curtis is a made-up dissimilarty used for species-abundance data. This is not correct for fatty acid data. Euclidean is a 'real' distance meaning that it satisfies the pythagorean-theorem. This is what is behind the PCA (not that PCA is correct for fatty acid data either, but more on that later). If you make a NMDS with euclidean, you should get similar results to the PCA. 
+
 ```{r}
 #### NMDS
 library(ggplot2)
@@ -133,6 +140,12 @@ ggplot(NMDS.plot, aes(NMDS1, NMDS2, color=Species))+
 ### Correspondence analysis
 ```{r}
 plot(CA(percent[c(44:51)]))
+
+# Maeve: CA is the method I would suggest for the raw compositional dataset. PCA is OK with the Sums/FATMs, but better to use CA on the ~43 compositional FA. I often use CA on the raw compositional data, but then use the envfit function to add the Sums/FATMS on top as regressions to make it a bit cleaner. You can also use CCA to test taxa and/or environmental data instead of Permanova. Check out the vegan package for these analyses, much better than the code you use here!
+
+# Maybe also try log-ratio analysis if you want? Michael Greenacre has some papers and code about this. It can't handle zeros, but he has a method of replacing non-detects with small values in his code (which is cited in his paper (Graeve and Greenacre 2020)). I prefer CA, but LRA is mathematically also a good choice for this type of data. 
+
+
 ```
 
 ***
@@ -149,6 +162,10 @@ PERM <- adonis2(percent[c(44:49)] ~ Species, data = percent, permutations = 999,
 
 #somehow everything i test is significant. Can't get the same results as the paper:
   #PERMANOVA, F(4,122) = 93.2, p = 0.001)
+ 
+# Maeve: Again, do not use bray-curtis here. Permanova is not the approach I would use anyway, but if the main concern is replicating the paper, use Euclidean distance (under "method"). Also, I would scale the environmental variables (not as important when they are predictors and not response variables, but good to have them on the same scale when comparing their 'importance'). Also, check that you have made the data compositional before grouping since that will also affect these results...and log transform or similar.
+
+
 library(knitr)
 kable(PERM)
 ``` 
