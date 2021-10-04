@@ -10,9 +10,9 @@ I'm trying to reproduce the graph published in:
 
 *Grosbois, G., Mariash, H., Schneider, T., & Rautio, M. (2017). Under-ice availability of phytoplankton lipids is key to freshwater zooplankton winter survival. Scientific reports, 7(1), 1-11.*
 
-The pdf is included in this github repository. However I have not yet succeeded.
-
+The pdf as well as the suplementary data are included in this github repository.
 Here is the figure of the PCA of Grosbois et al. that I'm trying to reproduce.
+
 #![PCA from Grosbois et al.](PCA from paper.png)
 
 ### First try on the raw data
@@ -40,15 +40,15 @@ fviz_pca_biplot(groupPR, geom.ind = "point", pointshape = 21,
   ggtitle("2D PCA-plot from FA dataset") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
+As you can see I did not get the same results as they did in the paper, Amanda already mentioned I should use percentage FA.
+***
+### Here I worked with the FA percentages 
 
-### As you can see I did not get the same results
-
-Here I used the data but than as a percentage of total FA.
-Note i have changed the colors to match their colors for easier comparison
+Here I used the data but than as a percentage of total FA.(calculated this and made a new excel file)
+**Note** I have changed the colors to match their colors for easier comparison
 
 ```{r}
 ######## Percentage----
-
 
 percent <- read_excel("C:/Users/Erwin Kers/OneDrive/UIT/BIO-3524/practice data/Github/Multivariate-FA-stats/percentage FA.xlsx")
 
@@ -56,7 +56,6 @@ percent <- read_excel("C:/Users/Erwin Kers/OneDrive/UIT/BIO-3524/practice data/G
 
 percentPR <- prcomp(percent[c(44:51)], center = T, scale = T)
 fviz_pca_biplot(percentPR, geom.ind = "point",
-                
                 pointshape = 22, 
                 pointsize = 2, 
                 fill.ind = percent$Species, 
@@ -70,4 +69,21 @@ fviz_pca_biplot(percentPR, geom.ind = "point",
   ggtitle("2D PCA-plot from FA dataset") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
+***
+### PERMANOVA
+
+In the paper they performed a PERMANOVA to see the differences in FA composition between taxa.
+
+```{r, results = "asis"}
+########## PERMANOVA
+library(vegan)
+
+PERM <- adonis2(percent[c(44:49)] ~ Species, data = percent, permutations = 999, method="bray")
+
+#somehow everything i test is significant. Can't get the same results as the paper:
+  #PERMANOVA, F(4,122) = 93.2, p = 0.001)
+library(knitr)
+kable(PERM)
+``` 
+
 
