@@ -41,13 +41,15 @@ fviz_pca_biplot(groupPR, geom.ind = "point", pointshape = 21,
   theme(plot.title = element_text(hjust = 0.5))
 ```
 As you can see I did not get the same results as they did in the paper, Amanda already mentioned I should use percentage FA.
+
 ***
+
 ### Here I worked with the FA percentages 
 
 Here I used the data but than as a percentage of total FA.(calculated this and made a new excel file)
 **Note** I have changed the colors to match their colors for easier comparison
 
-```{r}
+```{r, error= T, warning= T}
 ######## Percentage----
 
 percent <- read_excel("C:/Users/Erwin Kers/OneDrive/UIT/BIO-3524/practice data/Github/Multivariate-FA-stats/percentage FA.xlsx")
@@ -56,6 +58,7 @@ percent <- read_excel("C:/Users/Erwin Kers/OneDrive/UIT/BIO-3524/practice data/G
 
 percentPR <- prcomp(percent[c(44:51)], center = T, scale = T)
 fviz_pca_biplot(percentPR, geom.ind = "point",
+                
                 pointshape = 22, 
                 pointsize = 2, 
                 fill.ind = percent$Species, 
@@ -69,7 +72,71 @@ fviz_pca_biplot(percentPR, geom.ind = "point",
   ggtitle("2D PCA-plot from FA dataset") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
+
+### Tried to normalize the data
+They mentioned they normalized their data but I don't know how, maybe they just meant as % of total FA?
+
+```{r}
+# trying to get the same layout (PCA)
+library(FactoMineR)
+library(ade4)
+library(ExPosition)
+
+#trying to normalize the date (they mentioned they did)
+
+#define Min-Max normalization function
+min_max_norm <- function(x) {
+  (x - min(x)) / (max(x) - min(x))
+}
+
+#apply Min-Max normalization
+normFA <- as.data.frame(lapply(percent[c(44:51)], min_max_norm))
+
+Normok <- prcomp(normFA, center = T, scale = F)
+fviz_pca_biplot(Normok, geom.ind = "point", pointshape = 21, 
+                pointsize = 2, 
+                fill.ind = group$Species, 
+                col.ind = "black", 
+                palette = "jco", 
+                addEllipses = T,
+                label = "var",
+                col.var = "black",
+                repel = T,
+                legend.title = "Species") +
+  ggtitle("2D PCA-plot from FA dataset") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+### NMDS with the same percentage data
+
+I thought this might look more like their plot, but this is very different.
+
+```{r}
+#### NMDS
+library(ggplot2)
+
+q <- metaMDS(percent[c(49:51)], distance="bray", k=2, trymax=35, autotransform=TRUE)
+stressplot(q)
+
+NMDS1 <- q$points[,1] 
+NMDS2 <- q$points[,2]
+NMDS.plot<-cbind(percent, NMDS1, NMDS2)
+
+ggplot(NMDS.plot, aes(NMDS1, NMDS2, color=Species))+
+  geom_point(position=position_jitter(.1), shape=3)+##separates overlapping points
+  stat_ellipse(type='t',size =1)+ ##draws 95% confidence interval ellipses
+  theme_minimal()
+```
+
+
+### Correspondence analysis
+```{r}
+plot(CA(percent[c(44:51)]))
+```
+
 ***
+
 ### PERMANOVA
 
 In the paper they performed a PERMANOVA to see the differences in FA composition between taxa.
